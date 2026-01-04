@@ -35,24 +35,42 @@ if(empty($_SESSION['id_user']) or empty($_SESSION['username']))
      
 
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
+       
         <ul class="navbar-nav mr-auto">
-          <li class="nav-item active">
-            <a class="nav-link" href="?">Home <span class="sr-only">(current)</span></a>
-          </li>
-          <li class="nav-item">
+    
+  
+    <?php if(@$_SESSION['level'] == 'admin'): ?>
+        <li class="nav-item active">
+            <a class="nav-link" href="?">Dashboard <span class="sr-only">(current)</span></a>
+         </li>
+        <li class="nav-item">
             <a class="nav-link" href="?halaman=instansi">Data Instansi</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="?halaman=surat-masuk">Data Surat Masuk</a>
-          </li>
-          <li class="nav-item">
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="?halaman=surat-masuk">Pengirim Surat</a>
+        </li>
+        <li class="nav-item">
             <a class="nav-link" href="?halaman=arsip">Arsip Surat</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="?halaman=user">Daftar Pengguna</a>
-          </li>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="?halaman=user">Manajemen User</a>
+        </li>
+         <li class="nav-item">
+            <a class="nav-link" href="logout.php">Logout</a>
+        </li>
 
-        </ul>
+    <?php endif; ?>
+
+    <?php if(@$_SESSION['level'] == 'direktur'): ?>
+         <li class="nav-item active">
+              <a class="nav-link" href="?">Dashboard<span class="sr-only">(current)</span></a>
+            </li>      
+         <li class="nav-item">
+            <a class="nav-link" href="logout.php">Logout</a>
+        </li>
+       
+    <?php endif; ?>
+</ul>
        
       </div>
     </div>

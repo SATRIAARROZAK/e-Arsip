@@ -7,7 +7,7 @@
 
 <div class="jumbotron mt-3">
   <h1 class="display-4">Selamat Datang, <?=$_SESSION['nama_lengkap']?>!</h1>
-  <p class="lead">Anda login sebagai <b>DIREKTUR</b>. Berikut adalah laporan statistik E-Arsip.</p>
+  <p class="lead">Anda login sebagai <b>Direktur</b>. Berikut adalah laporan statistik E-Arsip.</p>
   <hr class="my-4">
   
   <div class="row">
@@ -23,10 +23,10 @@
 
       <div class="col-md-4">
         <div class="card text-white bg-success mb-3">
-          <div class="card-header">Total Departemen</div>
+          <div class="card-header">Total Instansi</div>
           <div class="card-body">
             <h1 class="card-title"><?=$count_dep['total']?></h1>
-            <p class="card-text">Unit kerja terdaftar.</p>
+            <p class="card-text">Instansi terdaftar.</p>
           </div>
         </div>
       </div>

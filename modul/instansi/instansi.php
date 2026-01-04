@@ -61,12 +61,12 @@
 
 <div class="card mt-3">
   <div class="card-header" style="background-color: #f0c001;">
-    Form Data Departemen
+    Form Data Instansi
   </div>
   <div class="card-body">
   <form method="post" action="">
     <div class="form-group">
-        <label for="nama_departemen">Nama Departemen</label>
+        <label for="nama_departemen">Nama Instansi</label>
         <input type="text" class="form-control" id="nama_departemen" name="nama_departemen" value="<?=$vnama_departemen?>" required>
     </div>
     <button type="submit" name="bsimpan" class="btn btn-success">Simpan</button>
@@ -77,13 +77,13 @@
 
 <div class="card mt-3">
   <div class="card-header" style="background-color: #f7d914;">
-    Data Departemen
+    Data Instansi
   </div>
   <div class="card-body">
   <table class="table table-bordered table-hover table-striped">
     <tr>
         <th>No</th>
-        <th>Nama Departemen</th>
+        <th>Nama Instansi</th>
         <th>Aksi</th>
     </tr>
     <?php

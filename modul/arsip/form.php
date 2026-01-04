@@ -12,6 +12,9 @@
         $perihal          = mysqli_real_escape_string($koneksi, $_POST['perihal']);
         $id_departemen    = mysqli_real_escape_string($koneksi, $_POST['id_departemen']);
         $id_pengirim      = mysqli_real_escape_string($koneksi, $_POST['id_pengirim']);
+        
+        // PERBAIKAN: Ambil data file lama dari hidden input
+        $file_lama        = mysqli_real_escape_string($koneksi, $_POST['file_lama']);
 
         // Cek Edit atau Baru
         if(isset($_GET['hal']) && $_GET['hal'] == "edit")
@@ -19,11 +22,15 @@
             // --- LOGIKA EDIT ---
             // Cek apakah user ganti gambar/file
             if($_FILES['file']['error'] === 4){
-                // Jika error 4 berarti user tidak upload file baru, pakai file lama
-                $file = $vfile; 
+                // PERBAIKAN: Jika tidak ada file baru, pakai file lama dari hidden input
+                $file = $file_lama; 
             } else {
-                // Jika user upload file baru
+                // Jika user upload file baru, lakukan upload
                 $file = upload();
+                // Opsional: Hapus file lama jika ada file baru (biar hemat storage)
+                if(!empty($file_lama) && file_exists("file/".$file_lama)){
+                    unlink("file/".$file_lama);
+                }
             }
 
             $ubah = mysqli_query($koneksi, "UPDATE tbl_arsip SET 
@@ -46,11 +53,7 @@
         {
             // --- LOGIKA SIMPAN BARU ---
             $file = upload(); 
-            
-            // Jika upload gagal/kosong, beri nilai default string kosong atau warning
-            if(!$file){
-                $file = ''; 
-            }
+            if(!$file) $file = ''; 
 
             $query = "INSERT INTO tbl_arsip 
                       (no_surat, tanggal_surat, tanggal_diterima, perihal, id_departemen, id_pengirim, file) 
@@ -67,34 +70,49 @@
         }
     }
 
-    // --- LOGIKA TAMPIL DATA UNTUK EDIT ---
-    $vno_surat = ""; $vtanggal_surat = ""; $vtanggal_diterima = ""; $vperihal = "";
-    $vid_departemen = ""; $vnama_departemen = "Pilih Departemen";
-    $vid_pengirim = ""; $vnama_pengirim = "Pilih Pengirim";
-    $vfile = "";
-
-    if(isset($_GET['hal']))
+    // --- LOGIKA HAPUS DATA ---
+    if(isset($_GET['hal']) && $_GET['hal'] == "hapus")
     {
-        if($_GET['hal'] == "edit")
-        {
-            $tampil = mysqli_query($koneksi, "SELECT tbl_arsip.*, tbl_departemen.nama_departemen, tbl_pengirim_surat.nama_pengirim 
-                                              FROM tbl_arsip 
-                                              LEFT JOIN tbl_departemen ON tbl_arsip.id_departemen = tbl_departemen.id_departemen
-                                              LEFT JOIN tbl_pengirim_surat ON tbl_arsip.id_pengirim = tbl_pengirim_surat.id_pengirim_surat 
-                                              WHERE tbl_arsip.id_arsip='$_GET[id]'");
-            $data = mysqli_fetch_array($tampil);
-            if($data)
-            {
-                $vno_surat = $data['no_surat'];
-                $vtanggal_surat = $data['tanggal_surat'];
-                $vtanggal_diterima = $data['tanggal_diterima'];
-                $vperihal = $data['perihal'];
-                $vid_departemen = $data['id_departemen'];
-                $vnama_departemen = $data['nama_departemen']; // Mengambil nama departemen lama
-                $vid_pengirim = $data['id_pengirim'];
-                $vnama_pengirim = $data['nama_pengirim']; // Mengambil nama pengirim lama
-                $vfile = $data['file'];
+        $tampil = mysqli_query($koneksi, "SELECT file FROM tbl_arsip WHERE id_arsip = '$_GET[id]'");
+        $data = mysqli_fetch_array($tampil);
+        if($data['file'] != ""){
+            if(file_exists("file/" . $data['file'])){
+                unlink("file/" . $data['file']); 
             }
+        }
+        $hapus = mysqli_query($koneksi, "DELETE FROM tbl_arsip WHERE id_arsip = '$_GET[id]'");
+        if($hapus){
+            echo "<script>alert('Hapus Data Sukses'); document.location='?halaman=arsip';</script>";
+        } else {
+            echo "<script>alert('Hapus Data Gagal: ".mysqli_error($koneksi)."'); document.location='?halaman=arsip';</script>";
+        }
+    }
+
+    // --- PERSIAPAN TAMPIL DATA UNTUK EDIT ---
+    $vno_surat = ""; $vtanggal_surat = ""; $vtanggal_diterima = ""; $vperihal = "";
+    $vid_departemen = ""; $vnama_departemen = "Pilih Instansi";
+    $vid_pengirim = ""; $vnama_pengirim = "Pilih Instansi Pengirim";
+    $vfile = ""; // Variabel file lama
+
+    if(isset($_GET['hal']) && $_GET['hal'] == "edit")
+    {
+        $tampil = mysqli_query($koneksi, "SELECT tbl_arsip.*, tbl_departemen.nama_departemen, tbl_pengirim_surat.nama_pengirim 
+                                          FROM tbl_arsip 
+                                          LEFT JOIN tbl_departemen ON tbl_arsip.id_departemen = tbl_departemen.id_departemen
+                                          LEFT JOIN tbl_pengirim_surat ON tbl_arsip.id_pengirim = tbl_pengirim_surat.id_pengirim_surat 
+                                          WHERE tbl_arsip.id_arsip='$_GET[id]'");
+        $data = mysqli_fetch_array($tampil);
+        if($data)
+        {
+            $vno_surat = $data['no_surat'];
+            $vtanggal_surat = $data['tanggal_surat'];
+            $vtanggal_diterima = $data['tanggal_diterima'];
+            $vperihal = $data['perihal'];
+            $vid_departemen = $data['id_departemen'];
+            $vnama_departemen = $data['nama_departemen'];
+            $vid_pengirim = $data['id_pengirim'];
+            $vnama_pengirim = $data['nama_pengirim'];
+            $vfile = $data['file']; // Isi variabel file lama
         }
     }
 ?>
@@ -106,6 +124,8 @@
   <div class="card-body">
   <form method="post" action="" enctype="multipart/form-data" >
     
+    <input type="hidden" name="file_lama" value="<?=$vfile?>">
+
     <div class="form-group">
         <label for="no_surat">No Surat</label>
         <input type="text" class="form-control" id="no_surat" name="no_surat" value="<?=$vno_surat?>" required>
@@ -124,7 +144,7 @@
     </div>
     
     <div class="form-group">
-        <label for="id_departemen">Departemen / Tujuan</label>
+        <label for="id_departemen">Instansi</label>
         <select class="form-control" name="id_departemen" required>
             <option value="<?=$vid_departemen?>"><?=$vnama_departemen?></option>
             <?php
@@ -137,7 +157,7 @@
     </div>
     
     <div class="form-group">
-        <label for="id_pengirim">Pengirim Surat</label>
+        <label for="id_pengirim">Instansi Pengirim</label>
         <select class="form-control" name="id_pengirim" required>
             <option value="<?=$vid_pengirim?>"><?=$vnama_pengirim?></option>
             <?php
@@ -153,7 +173,9 @@
         <label for="file">Pilih File (PDF/Gambar)</label>
         <input type="file" class="form-control" id="file" name="file">
         <?php if(!empty($vfile)): ?>
-            <small class="text-danger">File saat ini: <?=$vfile?></small>
+            <small class="text-success font-weight-bold">File saat ini: <?=$vfile?></small>
+            <br>
+            <small class="text-muted">Biarkan kosong jika tidak ingin mengubah file.</small>
         <?php endif; ?>
     </div>
 
