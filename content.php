@@ -22,6 +22,11 @@
             include "modul/arsip/data.php";
         }
     }
+    elseif($halaman == "user")
+    {
+        //tampilkan halaman user
+        include "modul/user/user.php";
+    }
     else
     {
         //echo "Tampil Halaman Home";

@@ -48,6 +48,9 @@ if(empty($_SESSION['id_user']) or empty($_SESSION['username']))
           <li class="nav-item">
             <a class="nav-link" href="?halaman=arsip">Arsip Surat</a>
           </li>
+          <li class="nav-item">
+            <a class="nav-link" href="?halaman=user">Daftar Pengguna</a>
+          </li>
 
         </ul>
        

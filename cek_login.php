@@ -19,6 +19,8 @@ if($data)
 {
     $_SESSION['id_user'] = $data['id_user'];
     $_SESSION['username'] = $data['username'];
+    $_SESSION['nama_lengkap'] = $data['nama_lengkap']; // Tambahkan ini
+    $_SESSION['level'] = $data['level']; // Tambahkan ini
     header('location:admin.php');
 }
 else

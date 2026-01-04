@@ -1,42 +1,43 @@
 <?php
 
-// persiapan function untuk upload file/foto
 function upload()
 {
-    //deklarasikan variabel kebutuhan
-    $namafile = $_FILES['file']['name'];
-    $ukuranfile = $_FILES['file']['size'];
-    $error = $_FILES['file']['error'];
-    $tmpname = $_FILES["file"]['tmp_name'];
+    // Ambil properti file
+    $namaFile   = $_FILES['file']['name'];
+    $ukuranFile = $_FILES['file']['size'];
+    $error      = $_FILES['file']['error'];
+    $tmpName    = $_FILES['file']['tmp_name'];
 
+    // Cek apakah tidak ada file yang diupload
+    if ($error === 4) {
+        return false; 
+    }
 
-    //cek apakah yang diupload adalah file/gambar
-    $eksfilevalid = ['jpg', 'jpeg', 'png', 'pdf'];
-    $eksfile = explode('.', $namafile);
-    $eksfile = strtolower(end($eksfile));
-    
-    if(!in_array($eksfile, $eksfilevalid)){
-        echo "<script> alert('Yang anda upload bukan Gambar/File PDF..!') </script>";
+    // Cek ekstensi file (Hanya boleh PDF, JPG, PNG)
+    $ekstensiGambarValid = ['jpg', 'jpeg', 'png', 'pdf'];
+    $ekstensiGambar = explode('.', $namaFile);
+    $ekstensiGambar = strtolower(end($ekstensiGambar));
+
+    if (!in_array($ekstensiGambar, $ekstensiGambarValid)) {
+        echo "<script>alert('Yang anda upload bukan file Gambar/PDF!');</script>";
         return false;
     }
 
-    // cek jika ukuran file terlalu besar
-    if($ukuranfile > 1000000){
-        echo"<script> alert('Ukuran file anda terlalu besar') </script>";
+    // Cek ukuran file (Max 2 MB)
+    if ($ukuranFile > 2000000) {
+        echo "<script>alert('Ukuran file terlalu besar! (Max 2MB)');</script>";
         return false;
     }
 
-    //jika lolos pengecekan, file siap upload
-    //generate nama file baru
+    // Lolos pengecekan, generate nama baru agar tidak duplikat
+    $namaFileBaru = uniqid();
+    $namaFileBaru .= '.';
+    $namaFileBaru .= $ekstensiGambar;
 
-    $namafilebaru = uniqid();
-    $namafilebaru .= '.';
-    $namafilebaru .= $eksfile;
+    // Pindahkan file ke folder 'file' (Pastikan folder ini ada di root project!)
+    // CATATAN: Folder tujuan harus bernama 'file' sesuai data.php Anda
+    move_uploaded_file($tmpName, 'file/' . $namaFileBaru);
 
-    move_uploaded_file($tmpname, 'file/' .$namafilebaru);
-    return $namafilebaru;
-
+    return $namaFileBaru;
 }
-
-
 ?>
